@@ -1,4 +1,4 @@
-from functions.data import get_accounts, network, gas_buffer, payout_account, chainId
+from functions.data import get_accounts, network, gas_buffer, chainId, account_table
 from functions.provider import get_account, get_provider
 import json
 
@@ -28,8 +28,13 @@ def sendJewel(account, payout_account, amount, nonce):
 
 def payout():
     total_sent = 0
-    for user in get_accounts:
+    for user in get_accounts():
         account = get_account(user, w3)
+        payout_account = account_table.query(
+            KeyConditionExpression="address_ = :address_",
+            ExpressionAttributeValues={
+                ":address_": account.address,
+            })["Items"][0]["pay_to"]
         nonce = w3.eth.get_transaction_count(account.address)
         print("")
         print(user)

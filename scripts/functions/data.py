@@ -4,6 +4,8 @@ import boto3
 from dotenv import load_dotenv
 load_dotenv()
 
+manager_account = "0xa691623968855b91A066661b0552a7D3764c9a64"
+
 f = Fernet(os.environ.get('key').encode())
 def init_account_table():
     my_session = boto3.session.Session(
@@ -18,9 +20,10 @@ account_table = init_account_table()
 def get_accounts():
     accounts = []
     scan_response = account_table.scan(
-            FilterExpression="enabled_manager = :enabled",
+            FilterExpression="enabled_manager = :enabled AND pay_to = :pay_to",
             ExpressionAttributeValues={
-                ":enabled": True 
+                ":enabled": True,
+                ":pay_to": manager_account
             })
     for item in scan_response["Items"]:
         accounts.append(item["address_"])
