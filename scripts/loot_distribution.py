@@ -1,5 +1,6 @@
 from functions.data import get_accounts, network, account_table
 from functions.provider import get_account, get_provider
+from functions.utils import checkAllowance
 import json
 
 w3 = get_provider(network)
@@ -29,7 +30,6 @@ def sendItem(account, itemContract, amount, to, nonce):
     ).build_transaction({
         "from": account.address,
         "nonce": nonce,
-        #"gasPrice": w3.toWei(50, 'gwei')
     })
     tx["gas"] = int(w3.eth.estimate_gas(tx))
     tx["maxFeePerGas"] = w3.toWei(50, 'gwei')
@@ -43,19 +43,11 @@ def getItemAmount(account, item):
     contract = w3.eth.contract(address= items[item], abi=ERC20ABI)
     return int(contract.functions.balanceOf(account.address).call())
 
-def checkAllowance(account, item, amount):
-    contract = w3.eth.contract(address= items[item], abi=ERC20ABI)
-    if amount >= int(contract.functions.allowance(account.address, items[item]).call()):
-        return True
-    else: 
-        return False
-
 def addAllowance(account, item, nonce):
     contract = w3.eth.contract(address= items[item], abi=ERC20ABI)
     tx = contract.functions.approve(items[item], 115792089237316195423570985008687907853269984665640564039457584007913129639935).build_transaction({
         "from": account.address,
         "nonce": nonce,
-        #"gasPrice": w3.toWei(50, 'gwei')
     })
     tx["gas"] = int(w3.eth.estimate_gas(tx))
     tx["maxFeePerGas"] = w3.toWei(50, 'gwei')
@@ -82,7 +74,7 @@ def sellRewards():
             if item in decimals_data:
                 decimals = decimals_data[item]
             print(f"{item}: {amount/10**decimals}")
-            if checkAllowance(account, item ,amount):
+            if checkAllowance(account, item, items[item], ERC20ABI):
                 try:
                     addAllowance(account, item, nonce)
                     nonce+=1

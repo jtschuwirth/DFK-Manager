@@ -2,6 +2,7 @@ from functions.get_market_heros import getMarketHeros
 from functions.data import network
 from functions.provider import get_account, get_provider
 from functions.hero_number import heroNumber
+from functions.utils import checkAllowance
 import json
 
 w3 = get_provider(network)
@@ -17,14 +18,7 @@ HeroSaleJson = open("abi/HeroSale.json")
 HeroSaleABI = json.load(HeroSaleJson)
 HeroSaleContract = w3.eth.contract(address=HeroSaleAddress, abi=HeroSaleABI)
 
-user = "0x0E4a21031182fE25D763229ed4ADB90A8eC8bD7B"
-
-def checkAllowance(account):
-    contract = w3.eth.contract(address= items["Crystal"], abi=ERC20ABI)
-    if int(contract.functions.allowance(account.address, HeroSaleAddress).call()) == 0:
-        return True
-    else: 
-        return False
+user = "0x88a90E420277d11ca8d671237365bBceDFA01353"
 
 def addAllowance(account, nonce):
     contract = w3.eth.contract(address= items["Crystal"], abi=ERC20ABI)
@@ -58,7 +52,7 @@ def buyHeros():
     c = heroNumber(account)
     heros = getMarketHeros()
     nonce = w3.eth.get_transaction_count(account.address)
-    if checkAllowance(account):
+    if checkAllowance(account, "Crystal", HeroSaleAddress, ERC20ABI):
         addAllowance(account, nonce)
         print("Added allowance")
         return

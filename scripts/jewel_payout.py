@@ -1,14 +1,12 @@
 from functions.data import get_accounts, network, gas_buffer, chainId, account_table
 from functions.provider import get_account, get_provider
+from functions.utils import getJewelBalance
 import json
 
 itemsJson = open("items_data/items_dfkchain.json")
 items = json.load(itemsJson)
 
 w3 = get_provider(network)
-
-def getJewelBalance(account):
-    return int(w3.eth.get_balance(account.address))
 
 def sendJewel(account, payout_account, amount, nonce):
     tx = {
@@ -38,7 +36,7 @@ def payout():
         nonce = w3.eth.get_transaction_count(account.address)
         print("")
         print(user)
-        balance = getJewelBalance(account)
+        balance = getJewelBalance(account, w3)
         to_send = balance - gas_buffer*10**18
         if to_send > 0:
             sendJewel(account, payout_account, to_send, nonce)
