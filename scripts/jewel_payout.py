@@ -1,4 +1,4 @@
-from functions.data import get_accounts, network, gas_buffer, chainId, account_table
+from functions.data import get_accounts, network, gas_buffer, chainId, init_account_table
 from functions.provider import get_account, get_provider
 from functions.utils import getJewelBalance
 import json
@@ -28,6 +28,7 @@ def payout():
     total_sent = 0
     for user in get_accounts():
         account = get_account(user, w3)
+        account_table = init_account_table()
         payout_account = account_table.query(
             KeyConditionExpression="address_ = :address_",
             ExpressionAttributeValues={

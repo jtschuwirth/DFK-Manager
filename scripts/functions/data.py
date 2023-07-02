@@ -33,4 +33,4 @@ def get_accounts():
 
 network = "dfk"
 chainId= 53935
-gas_buffer = 20
+gas_buffer = 10

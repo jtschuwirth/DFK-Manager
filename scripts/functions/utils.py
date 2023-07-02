@@ -4,6 +4,9 @@ from functions.data import chainId
 itemsJson = open("items_data/items_dfkchain.json")
 items = json.load(itemsJson)
 
+decimalsJson = open("items_data/decimals.json")
+decimals_data = json.load(decimalsJson)
+
 ERC20Json = open("abi/ERC20.json")
 ERC20ABI = json.load(ERC20Json)
 
@@ -28,11 +31,11 @@ def heroNumber(account, w3):
     contract = w3.eth.contract(address= items["Heroes"], abi=ERC721ABI)
     return int(contract.functions.balanceOf(account.address).call())
 
-def fillGas(account, manager, nonce, w3):
+def fillGas(account, manager, amount, nonce, w3):
     tx = {
         "from": manager.address,
         "to": account.address,
-        "value": 5*10**18,
+        "value": amount,
         "nonce": nonce,
         "chainId": chainId
     }
@@ -60,4 +63,3 @@ def sendCrystal(account, manager, amount, nonce, w3):
     hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
     hash = w3.toHex(hash)
     w3.eth.wait_for_transaction_receipt(hash)
-

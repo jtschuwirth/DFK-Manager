@@ -11,7 +11,7 @@ w3 = get_provider(network)
 
 manager_address = "0xa691623968855b91A066661b0552a7D3764c9a64"
 setup_address = "0xa691623968855b91A066661b0552a7D3764c9a64"
-address = "0x73406e48846B1762844C916Af1CC5f8200f80a30"
+address = ""
 
 def deployAccount(manager_address, setup_address ,address=""):
     jewel_loss = 0
@@ -28,8 +28,9 @@ def deployAccount(manager_address, setup_address ,address=""):
     setup_nonce = w3.eth.get_transaction_count(setup.address)
     jewel_balance = getJewelBalance(account, w3)
     if (jewel_balance == 0):
-        fillGas(account, setup, setup_nonce, w3)
-        jewel_loss += 5
+        gas_fill_amount = 5
+        fillGas(account, setup, gas_fill_amount*10**18, setup_nonce, w3)
+        jewel_loss += gas_fill_amount
         print(f"Filled gas to account {account.address}")
         setup_nonce+=1
     else:
@@ -62,10 +63,11 @@ def deployAccount(manager_address, setup_address ,address=""):
         buyHeros(account, account_nonce, 18-hero_number, w3)
     else:
         print("Exiting")
-        print (f"Account setup cost, jewel {jewel_loss}, crystal {crystal_loss}")
+        print (f"account {account.address} left unfinished")
+        print(f"Account setup cost, jewel {jewel_loss}")
         return
     print("Done")
-    print (f"Account setup cost, jewel {jewel_loss}, crystal {crystal_loss}")
+    print(f"Account setup cost, jewel {jewel_loss}, crystal {crystal_loss}")
     
 
 
