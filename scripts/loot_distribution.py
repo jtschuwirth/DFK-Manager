@@ -55,6 +55,7 @@ def addAllowance(account, item, nonce):
     signed_tx = w3.eth.account.sign_transaction(tx, account.key)
     hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
     hash = w3.toHex(hash)
+    w3.eth.wait_for_transaction_receipt(hash)
 
 def sellRewards():
     for user in get_accounts():
@@ -83,7 +84,7 @@ def sellRewards():
                     print(f"Error adding allowance to {item}")
                     print(error)
 
-            elif amount != 0:
+            if amount != 0:
                 try:
                     sendItem(account, itemContract, amount, payout_account, nonce)
                     nonce+=1

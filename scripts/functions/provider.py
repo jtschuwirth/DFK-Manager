@@ -1,5 +1,5 @@
 from web3 import Web3
-from functions.data import f, account_table
+from functions.data import f, init_account_table
 from dotenv import load_dotenv
 load_dotenv()
 from web3.middleware import geth_poa_middleware
@@ -16,6 +16,7 @@ def get_provider(network):
 
 
 def get_account(address, w3):
+    account_table = init_account_table()
     key = account_table.query(
             KeyConditionExpression="address_ = :address_",
             ExpressionAttributeValues={

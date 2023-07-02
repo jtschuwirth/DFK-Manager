@@ -1,6 +1,6 @@
 from functions.data import get_accounts, network
 from functions.provider import get_account, get_provider
-from functions.hero_number import heroNumber
+from functions.utils import heroNumber
 from functions.utils import getJewelBalance
 import json
 
@@ -17,7 +17,7 @@ def checkHeros():
     zero = []
     for user in get_accounts():
         account = get_account(user, w3)
-        hero_number = heroNumber(account)
+        hero_number = heroNumber(account, w3)
         if hero_number == 18:
             ready_accounts.append(account.address)
         elif hero_number == 0:
@@ -36,7 +36,7 @@ def checkBalance():
         balance = getJewelBalance(account, w3)
         if balance == 0:
             zero.append(account.address)
-        if 5 > balance/10**18:
+        elif 5 > balance/10**18:
             missing.append(account.address)
     print(f"Missing Jewel: {missing}")
     print("")

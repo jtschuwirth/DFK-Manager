@@ -1,11 +1,8 @@
 from functions.get_market_heros import getMarketHeros
-from functions.data import network
-from functions.provider import get_account, get_provider
-from functions.hero_number import heroNumber
+from functions.utils import heroNumber
 from functions.utils import checkAllowance
 import json
 
-w3 = get_provider(network)
 
 itemsJson = open("items_data/items_dfkchain.json")
 items = json.load(itemsJson)
@@ -16,11 +13,8 @@ ERC20ABI = json.load(ERC20Json)
 HeroSaleAddress = "0xc390fAA4C7f66E4D62E59C231D5beD32Ff77BEf0"
 HeroSaleJson = open("abi/HeroSale.json")
 HeroSaleABI = json.load(HeroSaleJson)
-HeroSaleContract = w3.eth.contract(address=HeroSaleAddress, abi=HeroSaleABI)
 
-user = "0x9C9337e0f8154FBeDD4cCbFfb298dEC2C6ae38d9"
-
-def addAllowance(account, nonce):
+def addHeroAllowance(account, nonce, w3):
     contract = w3.eth.contract(address= items["Crystal"], abi=ERC20ABI)
     tx = contract.functions.approve(HeroSaleAddress, 115792089237316195423570985008687907853269984665640564039457584007913129639935).build_transaction({
         "from": account.address,
@@ -33,8 +27,10 @@ def addAllowance(account, nonce):
     signed_tx = w3.eth.account.sign_transaction(tx, account.key)
     hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
     hash = w3.toHex(hash)
+    w3.eth.wait_for_transaction_receipt(hash)
     
-def buyHero(account, hero, nonce):
+def buyHero(account, hero, nonce, w3):
+    HeroSaleContract = w3.eth.contract(address=HeroSaleAddress, abi=HeroSaleABI)
     tx = HeroSaleContract.functions.bid(hero["id"], hero["price"]).build_transaction({
         "from": account.address,
         "nonce": nonce
@@ -47,21 +43,20 @@ def buyHero(account, hero, nonce):
     hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
     hash = w3.toHex(hash)
 
-def buyHeros():
-    account = get_account(user, w3)
-    c = heroNumber(account)
+def buyHeros(account, starting_nonce, amount, w3):
+    nonce = starting_nonce
+    c = heroNumber(account, w3)
     heros = getMarketHeros(18)
-    nonce = w3.eth.get_transaction_count(account.address)
     if checkAllowance(account, "Crystal", HeroSaleAddress, ERC20ABI, w3):
-        addAllowance(account, nonce)
+        addHeroAllowance(account, nonce, w3)
+        nonce+=1
         print("Added allowance")
-        return
     for hero in heros:
-        if c==18: 
+        if c==amount: 
             print("Already has 18 heros")
             break
         try:
-            buyHero(account, hero, nonce)
+            buyHero(account, hero, nonce, w3)
             print(f"Bought hero: {hero['id']}")
             nonce+=1
             c+=1
@@ -69,5 +64,3 @@ def buyHeros():
             print(f"Error buying hero: {hero['id']}")
             print(error)
             print("")
-
-buyHeros()

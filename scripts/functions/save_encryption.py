@@ -26,7 +26,7 @@ def saveAccountData(table, user, key, pay_to):
             "enabled_quester": True,
         })
     
-def encryptData(user, key, pay_to):
+def saveEncryption(user, key, pay_to):
     items = table.query(
             KeyConditionExpression="address_ = :address_",
             ExpressionAttributeValues={
