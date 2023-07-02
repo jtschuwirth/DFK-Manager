@@ -15,9 +15,9 @@ def init_account_table():
         )
 
     return my_session.resource('dynamodb').Table("dfk-autoplayer-accounts")
-account_table = init_account_table()
 
 def get_accounts():
+    account_table = init_account_table()
     accounts = []
     scan_response = account_table.scan(
             FilterExpression="enabled_manager = :enabled AND pay_to = :pay_to",

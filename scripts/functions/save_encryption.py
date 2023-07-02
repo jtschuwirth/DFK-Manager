@@ -22,7 +22,8 @@ def saveAccountData(table, user, key, pay_to):
             "address_": user, 
             "key_": key,
             "pay_to": pay_to,
-            "enabled_manager": True
+            "enabled_manager": True,
+            "enabled_quester": True,
         })
     
 def encryptData(user, key, pay_to):

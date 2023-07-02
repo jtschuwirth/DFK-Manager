@@ -18,7 +18,7 @@ HeroSaleJson = open("abi/HeroSale.json")
 HeroSaleABI = json.load(HeroSaleJson)
 HeroSaleContract = w3.eth.contract(address=HeroSaleAddress, abi=HeroSaleABI)
 
-user = "0x88a90E420277d11ca8d671237365bBceDFA01353"
+user = "0x9C9337e0f8154FBeDD4cCbFfb298dEC2C6ae38d9"
 
 def addAllowance(account, nonce):
     contract = w3.eth.contract(address= items["Crystal"], abi=ERC20ABI)
@@ -50,9 +50,9 @@ def buyHero(account, hero, nonce):
 def buyHeros():
     account = get_account(user, w3)
     c = heroNumber(account)
-    heros = getMarketHeros()
+    heros = getMarketHeros(18)
     nonce = w3.eth.get_transaction_count(account.address)
-    if checkAllowance(account, "Crystal", HeroSaleAddress, ERC20ABI):
+    if checkAllowance(account, "Crystal", HeroSaleAddress, ERC20ABI, w3):
         addAllowance(account, nonce)
         print("Added allowance")
         return

@@ -77,7 +77,7 @@ def sellRewards():
             if item in decimals_data:
                 decimals = decimals_data[item]
             print(f"{item}: {amount/10**decimals}")
-            if checkAllowance(account, item, RouterAddress, ERC20ABI):
+            if checkAllowance(account, item, RouterAddress, ERC20ABI, w3):
                 try:
                     addAllowance(account, item, nonce)
                     nonce+=1

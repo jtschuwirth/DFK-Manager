@@ -6,7 +6,7 @@ headers = {
     'User-Agent': 'Mozilla/5.0'
 }
 
-def getMarketHeros():
+def getMarketHeros(amount):
     query = """
           query($max_price: String, $profession: String) {
               heroes(orderBy: salePrice, where: {
@@ -22,7 +22,7 @@ def getMarketHeros():
       """
      
     variables = {
-        "max_price": str(60*10**18),
+        "max_price": str(100*10**18),
         "profession": "mining",
     }
      
@@ -31,7 +31,7 @@ def getMarketHeros():
     total_cost = 0
     heros = []
     for hero in response.json()["data"]["heroes"]:
-        if c==18: break
+        if c==amount: break
         total_cost += int(hero["salePrice"])
         heros.append({"id": int(hero["id"]), "price": int(hero["salePrice"])})
         c+=1
