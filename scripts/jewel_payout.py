@@ -1,4 +1,4 @@
-from functions.data import get_accounts, network, gas_buffer, chainId, init_account_table
+from functions.data import get_accounts, network, gas_buffer, chainId, init_account_table, manager_account
 from functions.provider import get_account, get_provider
 from functions.utils import getJewelBalance
 import json
@@ -26,7 +26,7 @@ def sendJewel(account, payout_account, amount, nonce):
 
 def payout():
     total_sent = 0
-    for user in get_accounts():
+    for user in get_accounts(manager_account):
         account = get_account(user, w3)
         account_table = init_account_table()
         payout_account = account_table.query(

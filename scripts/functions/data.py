@@ -16,7 +16,7 @@ def init_account_table():
 
     return my_session.resource('dynamodb').Table("dfk-autoplayer-accounts")
 
-def get_accounts():
+def get_accounts(manager_account):
     account_table = init_account_table()
     accounts = []
     scan_response = account_table.scan(

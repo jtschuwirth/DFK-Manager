@@ -1,4 +1,4 @@
-from functions.data import get_accounts, network
+from functions.data import get_accounts, network, manager_account
 from functions.provider import get_account, get_provider
 from functions.utils import checkAllowance
 import json
@@ -67,7 +67,7 @@ def addAllowance(account, item, nonce):
     w3.eth.wait_for_transaction_receipt(hash)
 
 def sellRewards():
-    for user in get_accounts():
+    for user in get_accounts(manager_account):
         account = get_account(user, w3)
         nonce = w3.eth.get_transaction_count(account.address)
         print("")

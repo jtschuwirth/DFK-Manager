@@ -1,4 +1,4 @@
-from functions.data import get_accounts, network, account_table
+from functions.data import get_accounts, network, manager_account, init_account_table
 from functions.provider import get_account, get_provider
 from functions.utils import checkAllowance
 import json
@@ -58,8 +58,9 @@ def addAllowance(account, item, nonce):
     w3.eth.wait_for_transaction_receipt(hash)
 
 def sellRewards():
-    for user in get_accounts():
+    for user in get_accounts(manager_account):
         account = get_account(user, w3)
+        account_table= init_account_table()
         payout_account = account_table.query(
             KeyConditionExpression="address_ = :address_",
             ExpressionAttributeValues={

@@ -1,4 +1,4 @@
-from functions.data import get_accounts, network
+from functions.data import get_accounts, network, manager_account
 from functions.provider import get_account, get_provider
 from functions.utils import heroNumber
 from functions.utils import getJewelBalance
@@ -15,7 +15,7 @@ def checkHeros():
     ready_accounts = []
     missing = []
     zero = []
-    for user in get_accounts():
+    for user in get_accounts(manager_account):
         account = get_account(user, w3)
         hero_number = heroNumber(account, w3)
         if hero_number == 18:
@@ -31,7 +31,7 @@ def checkHeros():
 def checkBalance():
     zero = []
     missing = []
-    for user in get_accounts():
+    for user in get_accounts(manager_account):
         account = get_account(user, w3)
         balance = getJewelBalance(account, w3)
         if balance == 0:

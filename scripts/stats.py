@@ -5,13 +5,13 @@ from functions.data import network
 w3 = get_provider(network)
 
 #General
-accounts = 21
+accounts = 23
 miners_per_account = 18
 heros_per_quest = 6
 gas_cost = 0.08
 
 #Mining
-miner_avg_cost = 50 #Crystal
+miner_avg_cost = 55 #Crystal
 avg_gold= 65 #per quest
 tear_drop_rate = 0.1125 #per try
 shvas_drop_rate = 0.015 #per try
