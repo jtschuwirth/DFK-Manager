@@ -4,7 +4,7 @@ from functions.save_encryption import saveEncryption
 from functions.utils import getJewelBalance
 from functions.provider import get_account, get_provider
 from functions.utils import fillGas, sendCrystal, heroNumber, getCrystalBalance
-from functions.get_market_heros import getMarketHeros
+from functions.getMarketHeros import getMarketHeros
 from functions.buy_account_heros import buyHeros
 from functions.send_heros import sendHeros
 import time

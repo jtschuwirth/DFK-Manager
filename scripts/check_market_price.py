@@ -1,4 +1,4 @@
-from functions.get_market_heros import getMarketHeros
+from functions.getMarketHeros import getMarketHeros
 
 
 total_cost = 0

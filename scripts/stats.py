@@ -11,7 +11,7 @@ heros_per_quest = 6
 gas_cost = 0.075
 
 #Mining
-miner_avg_cost = 35 #Crystal
+miner_avg_cost = 38 #Crystal
 avg_gold= 65 #per quest
 tear_drop_rate = 0.1125 #per try
 shvas_drop_rate = 0.015 #per try

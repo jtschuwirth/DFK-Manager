@@ -14,6 +14,7 @@ def getMarketHeros(amount):
                   salePrice_not: null,
                   salePrice_lt:$max_price,
                   professionStr: $profession,
+                  privateAuctionProfile:null
               }) {
                   id
                   salePrice
