@@ -22,6 +22,8 @@ def checkHeros():
             ready_accounts.append(account.address)
         elif hero_number == 0:
             zero.append(account.address)
+        elif 18 < hero_number:
+            print(f"Account {account.address} has {hero_number} heros")
         else:
             missing.append(account.address)
     print(f"Missing Heros: {missing}")
@@ -36,7 +38,7 @@ def checkBalance():
         balance = getJewelBalance(account, w3)
         if balance == 0:
             zero.append(account.address)
-        elif 5 > balance/10**18:
+        elif 1 > balance/10**18:
             missing.append(account.address)
     print(f"Missing Jewel: {missing}")
     print("")

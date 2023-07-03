@@ -14,7 +14,7 @@ HeroSaleAddress = "0xc390fAA4C7f66E4D62E59C231D5beD32Ff77BEf0"
 HeroSaleJson = open("abi/HeroSale.json")
 HeroSaleABI = json.load(HeroSaleJson)
 
-def addHeroAllowance(account, nonce, w3):
+def addSaleAllowance(account, nonce, w3):
     contract = w3.eth.contract(address= items["Crystal"], abi=ERC20ABI)
     tx = contract.functions.approve(HeroSaleAddress, 115792089237316195423570985008687907853269984665640564039457584007913129639935).build_transaction({
         "from": account.address,
@@ -43,16 +43,16 @@ def buyHero(account, hero, nonce, w3):
     hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
     hash = w3.toHex(hash)
 
-def buyHeros(account, starting_nonce, amount, w3):
+def buyHeros(account, starting_nonce, w3):
     nonce = starting_nonce
     c = heroNumber(account, w3)
     heros = getMarketHeros(18)
     if checkAllowance(account, "Crystal", HeroSaleAddress, ERC20ABI, w3):
-        addHeroAllowance(account, nonce, w3)
+        addSaleAllowance(account, nonce, w3)
         nonce+=1
         print("Added allowance")
     for hero in heros:
-        if c==amount: 
+        if c==18: 
             print("Already has 18 heros")
             break
         try:

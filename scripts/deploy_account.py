@@ -6,14 +6,18 @@ from functions.provider import get_account, get_provider
 from functions.utils import fillGas, sendCrystal, heroNumber, getCrystalBalance
 from functions.get_market_heros import getMarketHeros
 from functions.buy_account_heros import buyHeros
+from functions.send_heros import sendHeros
+import time
 
 w3 = get_provider(network)
 
 manager_address = "0xa691623968855b91A066661b0552a7D3764c9a64"
 setup_address = "0xa691623968855b91A066661b0552a7D3764c9a64"
-address = ""
+warehouse_address = "0x867df63D1eEAEF93984250f78B4bd83C70652dcE"
 
-def deployAccount(manager_address, setup_address ,address=""):
+address = "0x3C3B6D19146136FEaE42762923090EE190C8Cfa6"
+
+def deployAccount(manager_address, setup_address, warehouse_address, address=""):
     jewel_loss = 0
     crystal_loss = 0
     if address == "":
@@ -26,6 +30,8 @@ def deployAccount(manager_address, setup_address ,address=""):
         account_nonce = w3.eth.get_transaction_count(account.address)
     setup = get_account(setup_address, w3)
     setup_nonce = w3.eth.get_transaction_count(setup.address)
+    warehouse = get_account(warehouse_address, w3)
+    warehouse_nonce = w3.eth.get_transaction_count(warehouse.address)
     jewel_balance = getJewelBalance(account, w3)
     if (jewel_balance == 0):
         gas_fill_amount = 5
@@ -36,10 +42,31 @@ def deployAccount(manager_address, setup_address ,address=""):
     else:
         print(f"Account {account.address} already has gas")
     hero_number = heroNumber(account, w3)
-    if hero_number == 18:
+    print(f"Account has {hero_number} heros")
+    if 18 <= hero_number:
         print("Account is already deployed")
         print (f"Account setup cost, jewel {jewel_loss}, crystal {crystal_loss}")
         return
+    
+    warehouse_heros = heroNumber(warehouse, w3)
+    if 0 < warehouse_heros:
+        warehouse_bool = input(f"Get heros from warehouse ({warehouse_heros})? (y/n)")
+        if warehouse_bool == "y":
+            amount = min(18-hero_number, warehouse_heros)
+            print("Getting heros from warehouse")
+            sendHeros(account, warehouse, amount, warehouse_nonce, w3)
+            print("Done")
+        else:
+            print("Continue without warehouse heros")
+    
+    time.sleep(10)
+    hero_number = heroNumber(account, w3)
+    print(f"Account has {hero_number} heros")
+    if 18 <= hero_number:
+        print("Account is already deployed")
+        print (f"Account setup cost, jewel {jewel_loss}, crystal {crystal_loss}")
+        return
+    
     print("Getting hero prices")
     heros = getMarketHeros(18-hero_number)
     total_cost = 0
@@ -60,7 +87,7 @@ def deployAccount(manager_address, setup_address ,address=""):
             crystal_loss += (total_cost-crystal_balance)/10**18
 
         print("Preparing to buy heros")
-        buyHeros(account, account_nonce, 18-hero_number, w3)
+        buyHeros(account, account_nonce, w3)
     else:
         print("Exiting")
         print (f"account {account.address} left unfinished")
@@ -74,4 +101,4 @@ def deployAccount(manager_address, setup_address ,address=""):
 
 
 
-deployAccount(manager_address, setup_address, address)
+deployAccount(manager_address, setup_address, warehouse_address, address)
