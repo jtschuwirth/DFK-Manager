@@ -62,9 +62,9 @@ def sellRewards():
             if item in decimals_data:
                 decimals = decimals_data[item]
             print(f"{item}: {amount/10**decimals}")
-            if checkAllowance(account, item, ERC20ABI, w3):
+            if checkAllowance(account, item, items[item], ERC20ABI, w3):
                 try:
-                    addAllowance(account, item, nonce, ERC20ABI, w3)
+                    addAllowance(account, item, items[item], nonce, ERC20ABI, w3)
                     nonce+=1
                     print(f"Added allowance to {item}")
                 except Exception as error:

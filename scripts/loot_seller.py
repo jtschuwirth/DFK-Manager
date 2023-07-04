@@ -52,11 +52,14 @@ def getItemAmount(account, item):
     return int(contract.functions.balanceOf(account.address).call())
 
 def sellRewards():
-    for user in get_accounts(manager_account):
+    c=1
+    accounts = get_accounts(manager_account)
+    for user in accounts:
         account = get_account(user, w3)
         nonce = w3.eth.get_transaction_count(account.address)
         print("")
-        print(user)
+        print(f"{user} ({c}/{len(accounts)})")
+        c+=1
         for item in sellables:
             decimals = 0
             amount = getItemAmount(account, item)
@@ -65,7 +68,7 @@ def sellRewards():
             print(f"{item}: {amount/10**decimals}")
             if checkAllowance(account, item, RouterAddress, ERC20ABI, w3):
                 try:
-                    addAllowance(account, item, nonce, ERC20ABI, w3)
+                    addAllowance(account, item, RouterAddress, nonce, ERC20ABI, w3)
                     nonce+=1
                     print(f"Added allowance to {item}")
                 except Exception as error:

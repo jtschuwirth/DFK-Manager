@@ -1,4 +1,5 @@
 import json
+import time
 from functions.data import chainId 
 
 itemsJson = open("items_data/items_dfkchain.json")
@@ -20,16 +21,16 @@ def getCrystalBalance(account, w3):
     contract = w3.eth.contract(address= items["Crystal"], abi=ERC20ABI)
     return int(contract.functions.balanceOf(account.address).call())
 
-def checkAllowance(account, item, abi, w3):
+def checkAllowance(account, item, address, abi, w3):
     contract = w3.eth.contract(address= items[item], abi=abi)
-    if int(contract.functions.allowance(account.address, items[item]).call()) == 0:
+    if int(contract.functions.allowance(account.address, address).call()) == 0:
         return True
     else: 
         return False
 
-def addAllowance(account, item, nonce, abi, w3):
+def addAllowance(account, item, address,  nonce, abi, w3):
     contract = w3.eth.contract(address= items[item], abi=abi)
-    tx = contract.functions.approve(items[item], 115792089237316195423570985008687907853269984665640564039457584007913129639935).build_transaction({
+    tx = contract.functions.approve(address, 115792089237316195423570985008687907853269984665640564039457584007913129639935).build_transaction({
         "from": account.address,
         "nonce": nonce,
     })
