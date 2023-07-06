@@ -9,13 +9,16 @@ from functions.buy_account_heros import buyHeros
 from functions.send_heros import sendHeros
 import time
 
+from scripts.functions.getItemPriceJewel import getCrystalPriceJewel
+from scripts.functions.utils import buyCrystal
+
 w3 = get_provider(network)
 
 manager_address = "0xa691623968855b91A066661b0552a7D3764c9a64"
 setup_address = "0xa691623968855b91A066661b0552a7D3764c9a64"
 warehouse_address = "0x867df63D1eEAEF93984250f78B4bd83C70652dcE"
 
-address = "0x3C3B6D19146136FEaE42762923090EE190C8Cfa6"
+address = ""
 
 def deployAccount(manager_address, setup_address, warehouse_address, address=""):
     jewel_loss = 0
@@ -25,6 +28,7 @@ def deployAccount(manager_address, setup_address, warehouse_address, address="")
         saveEncryption(new_account["address"], new_account["private_key"], manager_address)
         account = get_account(new_account["address"], w3)
         account_nonce = w3.eth.get_transaction_count(account.address)
+        print(f"New account created: {new_account['address']}")
     else:
         account = get_account(address, w3)
         account_nonce = w3.eth.get_transaction_count(account.address)
@@ -32,15 +36,7 @@ def deployAccount(manager_address, setup_address, warehouse_address, address="")
     setup_nonce = w3.eth.get_transaction_count(setup.address)
     warehouse = get_account(warehouse_address, w3)
     warehouse_nonce = w3.eth.get_transaction_count(warehouse.address)
-    jewel_balance = getJewelBalance(account, w3)
-    if (jewel_balance == 0):
-        gas_fill_amount = 5
-        fillGas(account, setup, gas_fill_amount*10**18, setup_nonce, w3)
-        jewel_loss += gas_fill_amount
-        print(f"Filled gas to account {account.address}")
-        setup_nonce+=1
-    else:
-        print(f"Account {account.address} already has gas")
+
     hero_number = heroNumber(account, w3)
     print(f"Account has {hero_number} heros")
     if 18 <= hero_number:
@@ -67,19 +63,33 @@ def deployAccount(manager_address, setup_address, warehouse_address, address="")
         print (f"Account setup cost, jewel {jewel_loss}, crystal {crystal_loss}")
         return
     
-    print("Getting hero prices")
+    print("Getting Market Data")
     heros = getMarketHeros(18-hero_number)
+    crystal_value = getCrystalPriceJewel(w3) 
     total_cost = 0
     for hero in heros:
         total_cost+=hero["price"]
     avg_cost = total_cost/10**18/len(heros)
     print(f"Missing heros {18-hero_number}")
-    print(f"heros cost: {total_cost/10**18}")
-    print(f"avg cost: {avg_cost}")
+    print(f"heros cost: {total_cost/10**18} crystal / {(total_cost/10**18)*crystal_value} jewel")
+    print(f"avg cost: {avg_cost} crystal / {avg_cost*crystal_value} jewel")
     buy_bool = input("Continue buying heros? (y/n)")
     if buy_bool == "y":
+        print("Adding Gas")
+        jewel_balance = getJewelBalance(account, w3)
+        if (jewel_balance == 0):
+            gas_fill_amount = 10
+            fillGas(account, setup, gas_fill_amount*10**18, setup_nonce, w3)
+            jewel_loss += gas_fill_amount
+            print(f"Filled gas to account {account.address}")
+            setup_nonce+=1
+        else:
+            print(f"Account {account.address} already has gas")
+        
         crystal_balance = getCrystalBalance(account, w3)
         if crystal_balance < total_cost:
+            print(f"Buying {(total_cost-crystal_balance)/10**18} crystal")
+            buyCrystal(setup, total_cost-crystal_balance, setup_nonce, w3)
             print(f"Sending {(total_cost-crystal_balance)/10**18} crystal")
             sendCrystal(account, setup, total_cost-crystal_balance, setup_nonce, w3)
             setup_nonce+=1
@@ -89,10 +99,7 @@ def deployAccount(manager_address, setup_address, warehouse_address, address="")
         print("Preparing to buy heros")
         buyHeros(account, account_nonce, w3)
     else:
-        print("Exiting")
-        print (f"account {account.address} left unfinished")
-        print(f"Account setup cost, jewel {jewel_loss}")
-        return
+        print("Continue without buying heros")
     print("Done")
     print(f"Account setup cost, jewel {jewel_loss}, crystal {crystal_loss}")
     

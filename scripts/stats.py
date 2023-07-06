@@ -8,7 +8,7 @@ w3 = get_provider(network)
 accounts = 22
 miners_per_account = 18
 heros_per_quest = 6
-gas_cost = 0.075
+gas_cost = 0.077
 
 #Mining
 miner_avg_cost = 38 #Crystal

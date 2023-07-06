@@ -14,6 +14,10 @@ ERC20ABI = json.load(ERC20Json)
 ERC721Json = open("abi/ERC721.json")
 ERC721ABI = json.load(ERC721Json)
 
+RouterAddress = "0x3C351E1afdd1b1BC44e931E12D4E05D6125eaeCa"
+RouterJson = open("abi/UniswapV2Router02.json")
+RouterABI = json.load(RouterJson)
+
 def getJewelBalance(account, w3):
     return int(w3.eth.get_balance(account.address))
 
@@ -75,6 +79,27 @@ def sendCrystal(account, manager, amount, nonce, w3):
     tx["maxFeePerGas"] = w3.toWei(50, 'gwei')
     tx["maxPriorityFeePerGas"] = w3.toWei(2, "gwei")
     signed_tx = w3.eth.account.sign_transaction(tx, manager.key)
+    hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    hash = w3.toHex(hash)
+    w3.eth.wait_for_transaction_receipt(hash)
+
+def buyCrystal(account, amount, nonce, w3):
+    RouterContract = w3.eth.contract(address=RouterAddress, abi=RouterABI)
+    tx = RouterContract.functions.swapETHForExactTokens(
+        amount,
+        0,
+        [items["Jewel"], items["Crystal"]],
+        account.address,
+        int(time.time()+60)
+        
+    ).build_transaction({
+        "from": account.address,
+        "nonce": nonce
+    })
+    tx["gas"] = int(w3.eth.estimate_gas(tx))
+    tx["maxFeePerGas"] = w3.toWei(50, 'gwei')
+    tx["maxPriorityFeePerGas"] = w3.toWei(3, "gwei")
+    signed_tx = w3.eth.account.sign_transaction(tx, account.key)
     hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
     hash = w3.toHex(hash)
     w3.eth.wait_for_transaction_receipt(hash)

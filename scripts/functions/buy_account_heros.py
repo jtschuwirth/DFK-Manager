@@ -33,7 +33,7 @@ def buyHeros(account, starting_nonce, w3):
     c = heroNumber(account, w3)
     heros = getMarketHeros(18)
     if checkAllowance(account, "Crystal", HeroSaleAddress, ERC20ABI, w3):
-        addAllowance(account, "Crystal", HeroSaleAddress, nonce, w3)
+        addAllowance(account, "Crystal", HeroSaleAddress, nonce, ERC20ABI, w3)
         nonce+=1
         print("Added allowance")
     for hero in heros:
