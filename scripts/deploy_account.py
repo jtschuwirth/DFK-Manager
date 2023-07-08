@@ -18,6 +18,7 @@ manager_address = "0xa691623968855b91A066661b0552a7D3764c9a64"
 setup_address = "0xa691623968855b91A066661b0552a7D3764c9a64"
 warehouse_address = "0x867df63D1eEAEF93984250f78B4bd83C70652dcE"
 
+
 def deployAccount(manager_address, setup_address, warehouse_address):
     jewel_loss = 0
     crystal_loss = 0
@@ -68,7 +69,20 @@ def deployAccount(manager_address, setup_address, warehouse_address):
         time.sleep(10)
         hero_number = heroNumber(account, w3)
         print(f"Account has {hero_number} heros")
-        if 18 <= hero_number:
+        jewel_balance = getJewelBalance(account, w3)
+        print(f"Account has {jewel_balance} jewel")
+        if 18 <= hero_number and jewel_balance == 0:
+            if (jewel_balance == 0):
+                print("Adding Gas")
+                gas_fill_amount = 10
+                fillGas(account, setup, gas_fill_amount*10**18, setup_nonce, w3)
+                jewel_loss += gas_fill_amount
+                print(f"Filled gas to account {account.address}")
+                setup_nonce+=1
+            else:
+                print(f"Account {account.address} already has gas")
+            
+        if 18 <= hero_number and jewel_balance != 0:
             print("Account is already deployed")
             print (f"Account setup cost, jewel {jewel_loss}, crystal {crystal_loss}")
             return
@@ -85,9 +99,9 @@ def deployAccount(manager_address, setup_address, warehouse_address):
     print(f"avg cost: {avg_cost} crystal / {avg_cost*crystal_value} jewel")
     buy_bool = input("Continue buying heros? (y/n)")
     if buy_bool == "y":
-        print("Adding Gas")
         jewel_balance = getJewelBalance(account, w3)
         if (jewel_balance == 0):
+            print("Adding Gas")
             gas_fill_amount = 10
             fillGas(account, setup, gas_fill_amount*10**18, setup_nonce, w3)
             jewel_loss += gas_fill_amount

@@ -45,7 +45,7 @@ def payout():
         if to_send > 0:
             sendJewel(account, payout_account, to_send, nonce)
             try:
-                last_payout_time = payouts_table.get_item(Key={"address_": account.address})["Item"]["time_delta"]
+                last_payout_time = payouts_table.get_item(Key={"address_": account.address})["Item"]["time"]
             except:
                 last_payout_time = 0
             try:
@@ -55,6 +55,7 @@ def payout():
             payouts_table.put_item(Item={
                 "address_": account.address,
                 "amount_": str(to_send/10**18),
+                "time_": str(int(time.time())),
                 "time_delta": str(int(time.time()) - int(last_payout_time)),
             })
             total_sent += to_send/10**18
