@@ -83,18 +83,18 @@ def sendCrystal(account, manager, amount, nonce, w3):
     hash = w3.toHex(hash)
     w3.eth.wait_for_transaction_receipt(hash)
 
-def buyCrystal(account, amount, nonce, w3):
+def buyCrystal(account, amount, expected_cost, nonce, w3):
     RouterContract = w3.eth.contract(address=RouterAddress, abi=RouterABI)
     tx = RouterContract.functions.swapETHForExactTokens(
         amount,
-        0,
         [items["Jewel"], items["Crystal"]],
         account.address,
         int(time.time()+60)
         
     ).build_transaction({
         "from": account.address,
-        "nonce": nonce
+        "nonce": nonce,
+        "value": expected_cost
     })
     tx["gas"] = int(w3.eth.estimate_gas(tx))
     tx["maxFeePerGas"] = w3.toWei(50, 'gwei')

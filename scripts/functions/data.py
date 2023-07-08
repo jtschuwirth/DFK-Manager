@@ -16,6 +16,15 @@ def init_account_table():
 
     return my_session.resource('dynamodb').Table("dfk-autoplayer-accounts")
 
+def init_payouts_table():
+    my_session = boto3.session.Session(
+            aws_access_key_id=os.environ.get("ACCESS_KEY"),
+            aws_secret_access_key=os.environ.get("SECRET_KEY"),
+            region_name = "us-east-1",
+        )
+
+    return my_session.resource('dynamodb').Table("dfk-autoplayer-payouts")
+
 def get_accounts(manager_account):
     account_table = init_account_table()
     accounts = []
@@ -28,6 +37,15 @@ def get_accounts(manager_account):
     for item in scan_response["Items"]:
         accounts.append(item["address_"])
     return accounts
+
+def init_settings_table():
+    my_session = boto3.session.Session(
+            aws_access_key_id=os.environ.get("ACCESS_KEY"),
+            aws_secret_access_key=os.environ.get("SECRET_KEY"),
+            region_name = "us-east-1",
+        )
+
+    return my_session.resource('dynamodb').Table("dfk-autoplayer")
 
 
 

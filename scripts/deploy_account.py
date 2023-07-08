@@ -1,4 +1,4 @@
-from functions.data import network
+from functions.data import network, init_settings_table
 from functions.create_eth_address import createETHAddress
 from functions.save_encryption import saveEncryption
 from functions.utils import getJewelBalance
@@ -9,8 +9,8 @@ from functions.buy_account_heros import buyHeros
 from functions.send_heros import sendHeros
 import time
 
-from scripts.functions.getItemPriceJewel import getCrystalPriceJewel
-from scripts.functions.utils import buyCrystal
+from functions.getItemPriceJewel import getCrystalPriceJewel
+from functions.utils import buyCrystal
 
 w3 = get_provider(network)
 
@@ -18,19 +18,29 @@ manager_address = "0xa691623968855b91A066661b0552a7D3764c9a64"
 setup_address = "0xa691623968855b91A066661b0552a7D3764c9a64"
 warehouse_address = "0x867df63D1eEAEF93984250f78B4bd83C70652dcE"
 
-address = ""
-
-def deployAccount(manager_address, setup_address, warehouse_address, address=""):
+def deployAccount(manager_address, setup_address, warehouse_address):
     jewel_loss = 0
     crystal_loss = 0
-    if address == "":
+    settings_table = init_settings_table()
+    last_account_address = settings_table.get_item(Key={"key_": "deployer_settings"})["Item"]["last_account"]
+    last_account = get_account(last_account_address, w3)
+    last_acc_jewel_balance = getJewelBalance(last_account, w3)
+    last_acc_hero_number = heroNumber(last_account, w3)
+    if 18 <= last_acc_hero_number and last_acc_jewel_balance != 0:
+        print("Last account has 18 heros and jewel balance")
+        print("creating new account")
         new_account = createETHAddress()
         saveEncryption(new_account["address"], new_account["private_key"], manager_address)
         account = get_account(new_account["address"], w3)
         account_nonce = w3.eth.get_transaction_count(account.address)
         print(f"New account created: {new_account['address']}")
+        settings_table.update_item(
+                Key={"key_": "deployer_settings"},
+                UpdateExpression="SET last_account = :account",
+                ExpressionAttributeValues={":account": new_account["address"]}
+        )
     else:
-        account = get_account(address, w3)
+        account = last_account
         account_nonce = w3.eth.get_transaction_count(account.address)
     setup = get_account(setup_address, w3)
     setup_nonce = w3.eth.get_transaction_count(setup.address)
@@ -55,13 +65,13 @@ def deployAccount(manager_address, setup_address, warehouse_address, address="")
         else:
             print("Continue without warehouse heros")
     
-    time.sleep(10)
-    hero_number = heroNumber(account, w3)
-    print(f"Account has {hero_number} heros")
-    if 18 <= hero_number:
-        print("Account is already deployed")
-        print (f"Account setup cost, jewel {jewel_loss}, crystal {crystal_loss}")
-        return
+        time.sleep(10)
+        hero_number = heroNumber(account, w3)
+        print(f"Account has {hero_number} heros")
+        if 18 <= hero_number:
+            print("Account is already deployed")
+            print (f"Account setup cost, jewel {jewel_loss}, crystal {crystal_loss}")
+            return
     
     print("Getting Market Data")
     heros = getMarketHeros(18-hero_number)
@@ -88,13 +98,15 @@ def deployAccount(manager_address, setup_address, warehouse_address, address="")
         
         crystal_balance = getCrystalBalance(account, w3)
         if crystal_balance < total_cost:
+            needed_crystal = total_cost-crystal_balance
             print(f"Buying {(total_cost-crystal_balance)/10**18} crystal")
-            buyCrystal(setup, total_cost-crystal_balance, setup_nonce, w3)
-            print(f"Sending {(total_cost-crystal_balance)/10**18} crystal")
-            sendCrystal(account, setup, total_cost-crystal_balance, setup_nonce, w3)
+            buyCrystal(setup, needed_crystal, int(needed_crystal*crystal_value*1.05), setup_nonce, w3)
             setup_nonce+=1
-            print(f"Sent {(total_cost-crystal_balance)/10**18} crystal to account {account.address}")
-            crystal_loss += (total_cost-crystal_balance)/10**18
+            print(f"Sending {needed_crystal/10**18} crystal")
+            sendCrystal(account, setup, needed_crystal, setup_nonce, w3)
+            setup_nonce+=1
+            print(f"Sent {needed_crystal/10**18} crystal to account {account.address}")
+            crystal_loss += needed_crystal/10**18
 
         print("Preparing to buy heros")
         buyHeros(account, account_nonce, w3)
@@ -108,4 +120,4 @@ def deployAccount(manager_address, setup_address, warehouse_address, address="")
 
 
 
-deployAccount(manager_address, setup_address, warehouse_address, address)
+deployAccount(manager_address, setup_address, warehouse_address)

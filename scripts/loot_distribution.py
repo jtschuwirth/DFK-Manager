@@ -44,7 +44,8 @@ def getItemAmount(account, item):
     return int(contract.functions.balanceOf(account.address).call())
 
 def sellRewards():
-    for user in get_accounts(manager_account):
+    accounts = get_accounts(manager_account)
+    for user in accounts:
         account = get_account(user, w3)
         account_table= init_account_table()
         payout_account = account_table.query(
@@ -54,7 +55,7 @@ def sellRewards():
             })["Items"][0]["pay_to"]
         nonce = w3.eth.get_transaction_count(account.address)
         print("")
-        print(user)
+        print(f"{user} ({c}/{len(accounts)})")
         for item in sellables:
             itemContract = w3.eth.contract(address=items[item], abi=ERC20ABI)
             decimals = 0
