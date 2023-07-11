@@ -62,11 +62,11 @@ def deployAccount(manager_address, setup_address, warehouse_address):
             amount = min(18-hero_number, warehouse_heros)
             print("Getting heros from warehouse")
             sendHeros(account, warehouse, amount, warehouse_nonce, w3)
-            print("Done")
+            print("Waiting for transactions to go through")
+            time.sleep(10)
         else:
             print("Continue without warehouse heros")
-    
-        time.sleep(10)
+        
         hero_number = heroNumber(account, w3)
         print(f"Account has {hero_number} heros")
         jewel_balance = getJewelBalance(account, w3)
