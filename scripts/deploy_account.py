@@ -49,43 +49,52 @@ def deployAccount(manager_address, setup_address, warehouse_address):
     warehouse_nonce = w3.eth.get_transaction_count(warehouse.address)
 
     hero_number = heroNumber(account, w3)
+    jewel_balance = getJewelBalance(account, w3)
     print(f"Account has {hero_number} heros")
-    if 18 <= hero_number:
+    print(f"Account has {jewel_balance} jewel")
+
+    if 18 <= hero_number and jewel_balance != 0:
         print("Account is already deployed")
         print (f"Account setup cost, jewel {jewel_loss}, crystal {crystal_loss}")
         return
+    if jewel_balance == 0:
+        fill_gas_bool = input("Account has no jewel, fill gas? (y/n)")
+        if fill_gas_bool == "y":
+            print("Adding Gas")
+            gas_fill_amount = 10
+            fillGas(account, setup, gas_fill_amount*10**18, setup_nonce, w3)
+            jewel_loss += gas_fill_amount
+            setup_nonce+=1
+            print(f"Filled gas to account {account.address}")
     
+
     warehouse_heros = heroNumber(warehouse, w3)
-    if 0 < warehouse_heros:
+    while 0 < warehouse_heros and 18 > hero_number:
         warehouse_bool = input(f"Get heros from warehouse ({warehouse_heros})? (y/n)")
         if warehouse_bool == "y":
             amount = min(18-hero_number, warehouse_heros)
             print("Getting heros from warehouse")
             sendHeros(account, warehouse, amount, warehouse_nonce, w3)
             print("Waiting for transactions to go through")
-            time.sleep(10)
+            time.sleep(1)
+            warehouse_heros = heroNumber(warehouse, w3)
+            hero_number = heroNumber(account, w3)
+            print(f"Account has {hero_number} heros")
+            if 0 < warehouse_heros and 18 > hero_number:
+                continue
         else:
             print("Continue without warehouse heros")
+            break
         
         hero_number = heroNumber(account, w3)
         print(f"Account has {hero_number} heros")
         jewel_balance = getJewelBalance(account, w3)
         print(f"Account has {jewel_balance} jewel")
-        if 18 <= hero_number and jewel_balance == 0:
-            if (jewel_balance == 0):
-                print("Adding Gas")
-                gas_fill_amount = 10
-                fillGas(account, setup, gas_fill_amount*10**18, setup_nonce, w3)
-                jewel_loss += gas_fill_amount
-                print(f"Filled gas to account {account.address}")
-                setup_nonce+=1
-            else:
-                print(f"Account {account.address} already has gas")
-            
-        if 18 <= hero_number and jewel_balance != 0:
-            print("Account is already deployed")
+        if 18 <= hero_number:
+            print("Account already has 18 heros")
             print (f"Account setup cost, jewel {jewel_loss}, crystal {crystal_loss}")
             return
+        break
     
     print("Getting Market Data")
     heros = getMarketHeros(18-hero_number)

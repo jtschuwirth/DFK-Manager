@@ -56,6 +56,15 @@ def init_tracking_table():
 
     return my_session.resource('dynamodb').Table("dfk-buyer-tracking")
 
+def init_profit_tracking_table():
+    my_session = boto3.session.Session(
+            aws_access_key_id=os.environ.get("ACCESS_KEY"),
+            aws_secret_access_key=os.environ.get("SECRET_KEY"),
+            region_name = "us-east-1",
+        )
+
+    return my_session.resource('dynamodb').Table("dfk-autoplayer-tracking")
+
 
 
 network = "dfk"

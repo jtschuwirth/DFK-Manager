@@ -1,17 +1,17 @@
 from functions.getItemPriceJewel import getItemPriceJewel, getCrystalPriceJewel
 from functions.provider import get_provider
-from functions.data import network
+from functions.data import network, init_payouts_table
 
 w3 = get_provider(network)
 
 #General
-accounts = 27
+accounts = 200
 miners_per_account = 18
 heros_per_quest = 6
-gas_cost = 0.07
+daily_avg_gas_cost = 0.7
 
 #Mining
-miner_avg_cost = 38 #Crystal
+miner_avg_cost = 37.5 #Crystal
 avg_gold= 65 #per quest
 tear_drop_rate = 0.1125 #per try
 shvas_drop_rate = 0.015 #per try
@@ -19,10 +19,19 @@ moksha_drop_rate = 0.00045 #per try
 egg_drop_rate = 0.0004 #per quest
 quest_per_day = 1.84615
 loot_slots = 5
+jewel_value = 0.162578
 
 def printStats():
+    print("Last payout")
+    payouts_table = init_payouts_table()
+    scan_result = payouts_table.scan()
+    total_payout = 0
+    for payout in scan_result['Items']:
+        total_payout += float(payout['amount_'])
+    print(f"Total payout in last round: {total_payout} Jewel")
+        
+
     print("Prices")	
-    jewel_value = 0.14366
     crystal_value = getCrystalPriceJewel(w3) 
     tear_value = getItemPriceJewel("Gaias Tears", w3)
     gold_value = getItemPriceJewel("DFKGold", w3)
@@ -69,20 +78,6 @@ def printStats():
     print(f"Yellow Egg: {round(daily_egg_value/daily_income, 4)*100}%")
 
     print("")
-    print("Individual Gas Cost")
-    individual_daily_gas_cost = gas_cost*quest_per_day*2/heros_per_quest
-    print(f"1d: {individual_daily_gas_cost} Jewel")
-    print(f"7d: {individual_daily_gas_cost*7} Jewel")
-    print(f"30d: {individual_daily_gas_cost*30} Jewel")
-
-    print("")
-    print("Individual Earnings")
-    individual_daily_earning = daily_income - individual_daily_gas_cost
-    print(f"1d: {individual_daily_earning} Jewel")
-    print(f"7d: {individual_daily_earning*7} Jewel")
-    print(f"30d: {individual_daily_earning*30} Jewel")
-
-    print("")
     print("Account Raw Income")
     account_daily_income = daily_income*miners_per_account
     account_daily_gold = daily_gold*miners_per_account
@@ -98,15 +93,16 @@ def printStats():
 
     print("")
     print("Account Gas Cost")
-    account_daily_gas_cost = individual_daily_gas_cost*miners_per_account
+    account_daily_gas_cost = daily_avg_gas_cost
     print(f"1d: {account_daily_gas_cost} Jewel")
     print(f"7d: {account_daily_gas_cost*7} Jewel")
     print(f"30d: {account_daily_gas_cost*30} Jewel")
 
     print("")
     print("Account Earnings")
-    account_daily_earnings = individual_daily_earning*miners_per_account
+    account_daily_earnings = account_daily_income - daily_avg_gas_cost
     print(f"1d: {account_daily_earnings} Jewel")
+    print(f"3d: {account_daily_earnings*3} Jewel")
     print(f"7d: {account_daily_earnings*7} Jewel")
     print(f"30d: {account_daily_earnings*30} Jewel")
 
@@ -114,6 +110,7 @@ def printStats():
     print("Total Earnings")
     total_daily_earnings = account_daily_earnings*accounts
     print(f"1d: {total_daily_earnings} Jewel")
+    print(f"3d: {total_daily_earnings*3} Jewel")
     print(f"7d: {total_daily_earnings*7} Jewel")
     print(f"30d: {total_daily_earnings*30} Jewel")
 

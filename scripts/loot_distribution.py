@@ -45,6 +45,7 @@ def getItemAmount(account, item):
 
 def sellRewards():
     accounts = get_accounts(manager_account)
+    c=1
     for user in accounts:
         account = get_account(user, w3)
         account_table= init_account_table()
@@ -56,6 +57,7 @@ def sellRewards():
         nonce = w3.eth.get_transaction_count(account.address)
         print("")
         print(f"{user} ({c}/{len(accounts)})")
+        c+=1
         for item in sellables:
             itemContract = w3.eth.contract(address=items[item], abi=ERC20ABI)
             decimals = 0
