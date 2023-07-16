@@ -69,4 +69,3 @@ def init_profit_tracking_table():
 
 network = "dfk"
 chainId= 53935
-gas_buffer = 10

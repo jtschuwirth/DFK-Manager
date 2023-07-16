@@ -7,8 +7,9 @@ def lastTrackingResults():
     track_results.sort(key=lambda x: x["time_"], reverse=True)
     print(f"last tracking results:")
     print(f"time {datetime.fromtimestamp(int(track_results[0]['time_']))}")
-    print(f"daily expected avg profit {track_results[0]['daily_expected_avg_profit']} jewel")
+    print(f"daily avg earnings {track_results[0]['daily_avg_earnings']} jewel")
     print(f"daily avg gas cost {track_results[0]['daily_avg_gas_cost']} jewel")
+    print(f"daily expected avg profit {track_results[0]['daily_expected_avg_profit']} jewel")
     print(f"daily real avg profit {track_results[0]['daily_real_avg_profit']} jewel")
 
 

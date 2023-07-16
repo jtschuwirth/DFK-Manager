@@ -8,10 +8,10 @@ w3 = get_provider(network)
 accounts = 200
 miners_per_account = 18
 heros_per_quest = 6
-daily_avg_gas_cost = 0.7
+daily_avg_gas_cost = 0.6
 
 #Mining
-miner_avg_cost = 37.5 #Crystal
+miner_avg_cost = 40 #Crystal
 avg_gold= 65 #per quest
 tear_drop_rate = 0.1125 #per try
 shvas_drop_rate = 0.015 #per try
@@ -19,16 +19,26 @@ moksha_drop_rate = 0.00045 #per try
 egg_drop_rate = 0.0004 #per quest
 quest_per_day = 1.84615
 loot_slots = 5
-jewel_value = 0.162578
+jewel_value = 0.167011
 
 def printStats():
     print("Last payout")
     payouts_table = init_payouts_table()
-    scan_result = payouts_table.scan()
-    total_payout = 0
-    for payout in scan_result['Items']:
-        total_payout += float(payout['amount_'])
-    print(f"Total payout in last round: {total_payout} Jewel")
+    payouts_list = payouts_table.scan()["Items"]
+    total_earnings = 0 
+    total_time_delta = 0
+    no_stats = 0
+    for payout in payouts_list:
+        if int(payout["time_delta"]) == 0:
+            no_stats += 1
+            continue
+        total_earnings += float(payout["amount_"])
+        total_time_delta += int(payout["time_delta"])
+    avg_earnings = total_earnings/(len(payouts_list)-no_stats)
+    avg_time_delta = total_time_delta/(len(payouts_list)-no_stats)
+    avg_daily_earnings = avg_earnings/avg_time_delta*24*60*60
+    print(f"Avg real daily earnings {avg_daily_earnings}")
+    print(f"Total payout in last round: {total_earnings} Jewel")
         
 
     print("Prices")	
@@ -125,9 +135,8 @@ def printStats():
     print("Account Creation Price")
     print("Account cost")
     account_cost_crystal= miner_avg_cost*miners_per_account
-    account_cost_jewel = account_cost_crystal*crystal_value
+    account_cost_jewel = account_cost_crystal*crystal_value + 5
     account_cost_usd = account_cost_jewel*jewel_value
-    print(f"{account_cost_crystal} Crystal")
     print(f"{account_cost_jewel} Jewel")
     print(f"{account_cost_usd} USD")
 
@@ -137,7 +146,7 @@ def printStats():
 
     print("")
     print("Amount invested")
-    print(f"{account_cost_jewel*accounts} Jewel")
+    print(f"{account_cost_jewel*accounts + 5} Jewel")
     print(f"{account_cost_jewel*accounts*jewel_value} USD")
 
     #Stats

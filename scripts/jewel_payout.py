@@ -1,4 +1,4 @@
-from functions.data import get_accounts, network, gas_buffer, chainId, init_account_table, manager_account, init_payouts_table
+from functions.data import get_accounts, network, chainId, init_account_table, init_settings_table, manager_account
 from functions.provider import get_account, get_provider
 from functions.utils import getJewelBalance
 import json
@@ -28,10 +28,13 @@ def sendJewel(account, payout_account, amount, nonce):
 
 def payout():
     total_sent = 0
-    for user in get_accounts(manager_account):
+    accounts = get_accounts(manager_account)
+    c=1
+    for user in accounts:
         account = get_account(user, w3)
         account_table = init_account_table()
-        payouts_table = init_payouts_table()
+        settings_table = init_settings_table()
+        gas_buffer = int(settings_table.get_item(Key={"key_": "seller_settings"})["Item"]["min_buffer"])
         payout_account = account_table.query(
             KeyConditionExpression="address_ = :address_",
             ExpressionAttributeValues={
@@ -39,32 +42,18 @@ def payout():
             })["Items"][0]["pay_to"]
         nonce = w3.eth.get_transaction_count(account.address)
         print("")
-        print(user)
+        print(f"account: {user} ({c}/{len(accounts)})")
+        c+=1
         balance = getJewelBalance(account, w3)
         to_send = balance - gas_buffer*10**18
         if to_send > 0:
             sendJewel(account, payout_account, to_send, nonce)
-            try:
-                last_payout_time = payouts_table.get_item(Key={"address_": account.address})["Item"]["time"]
-            except:
-                last_payout_time = 0
-            try:
-                payouts_table.delete_item(Key={"address_": account.address})
-            except:
-                pass
-            payouts_table.put_item(Item={
-                "address_": account.address,
-                "amount_": str(to_send/10**18),
-                "time_": str(int(time.time())),
-                "time_delta": str(int(time.time()) - int(last_payout_time)),
-            })
             total_sent += to_send/10**18
             print(f"{to_send/10**18} Jewel payed to main account")
         else:
             print("No jewel to pay")
     print("")
-    print("total payout")
-    print(total_sent)
+    print(f"total payout {total_sent} Jewel")
 
 
 payout()
