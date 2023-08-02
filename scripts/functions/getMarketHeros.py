@@ -1,5 +1,5 @@
 import requests
-graph_url = "https://defi-kingdoms-community-api-gateway-co06z8vi.uc.gateway.dev/graphql"
+graph_url = "https://api.defikingdoms.com/graphql"
 headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',

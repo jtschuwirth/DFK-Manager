@@ -1,30 +1,68 @@
 from functions.getItemPriceJewel import getItemPriceJewel, getCrystalPriceJewel
 from functions.provider import get_provider
-from functions.data import network, init_payouts_table
+from functions.data import network, init_payouts_table, init_account_table, init_tracking_table
+from datetime import datetime
+import time
 
 w3 = get_provider(network)
 
 #General
-accounts = 200
 miners_per_account = 18
 heros_per_quest = 6
 daily_avg_gas_cost = 0.6
 
 #Mining
 miner_avg_cost = 40 #Crystal
-avg_gold= 65 #per quest
+avg_gold = 65 #per quest
 tear_drop_rate = 0.1125 #per try
 shvas_drop_rate = 0.015 #per try
 moksha_drop_rate = 0.00045 #per try
 egg_drop_rate = 0.0004 #per quest
 quest_per_day = 1.84615
 loot_slots = 5
-jewel_value = 0.167011
+jewel_value = 0.140039
 
 def printStats():
-    print("Last payout")
+    print("Prices")	
+    crystal_value = getCrystalPriceJewel(w3) 
+    tear_value = getItemPriceJewel("Gaias Tears", w3)
+    gold_value = getItemPriceJewel("DFKGold", w3)
+    shvas_value = getItemPriceJewel("Shvas Rune", w3)
+    moksha_value = getItemPriceJewel("Moksha Rune", w3)
+    egg_value = getItemPriceJewel("Yellow Pet Egg", w3)
+
+    tracking_table = init_tracking_table()
+    buys = tracking_table.scan()["Items"]
+    buys.sort(key=lambda x: int(x["time_"]), reverse=True)
+    timeframe = int(time.time())-int(buys[-1]["time_"])
+    total_expenditure = 0
+    buy_per_day = {}
+    buy_per_hour = {}
+    for buy in buys:
+        total_expenditure += float(buy["price"])
+        datetime.fromtimestamp(int(buy["time_"]))
+        if datetime.fromtimestamp(int(buy["time_"])).strftime("%Y-%m-%d") in buy_per_day:
+            buy_per_day[datetime.fromtimestamp(int(buy["time_"])).strftime("%Y-%m-%d")] += 1
+        else:
+            buy_per_day[datetime.fromtimestamp(int(buy["time_"])).strftime("%Y-%m-%d")] = 1
+        if datetime.fromtimestamp(int(buy["time_"])).strftime("%H") in buy_per_hour:
+            buy_per_hour[datetime.fromtimestamp(int(buy["time_"])).strftime("%H")] += 1
+        else:
+            buy_per_hour[datetime.fromtimestamp(int(buy["time_"])).strftime("%H")] = 1
+    avg_daily_expenditure = total_expenditure/(timeframe/86400)
+    print(f"Average heros bought per day: {str(len(buys)/(timeframe/86400))}")
+    avg_expenditure = total_expenditure/len(buys)
+    print(f"Average hero cost: {str(avg_expenditure*crystal_value)} jewel")
+
+    accounts_table = init_account_table()
     payouts_table = init_payouts_table()
     payouts_list = payouts_table.scan()["Items"]
+    accounts_list = accounts_table.scan(
+        FilterExpression="pay_to = :pay_to",
+            ExpressionAttributeValues={
+                ":pay_to": "0xa691623968855b91A066661b0552a7D3764c9a64"
+            }
+    )["Items"]
     total_earnings = 0 
     total_time_delta = 0
     no_stats = 0
@@ -37,17 +75,14 @@ def printStats():
     avg_earnings = total_earnings/(len(payouts_list)-no_stats)
     avg_time_delta = total_time_delta/(len(payouts_list)-no_stats)
     avg_daily_earnings = avg_earnings/avg_time_delta*24*60*60
-    print(f"Avg real daily earnings {avg_daily_earnings}")
-    print(f"Total payout in last round: {total_earnings} Jewel")
+    print(f"total accounts: {len(accounts_list)}")
+    print(f"total payments: {len(payouts_list)-no_stats}")
+    print(f"Avg real daily earnings per account: {avg_daily_earnings}")
+    print(f"Total payout in last round: {total_earnings} Jewel ({round(avg_time_delta/(24*60*60), 2)} days)")
+    print(f"total payout per day: {total_earnings/avg_time_delta*24*60*60} Jewel")
+    print("")
+    accounts = len(accounts_list)
         
-
-    print("Prices")	
-    crystal_value = getCrystalPriceJewel(w3) 
-    tear_value = getItemPriceJewel("Gaias Tears", w3)
-    gold_value = getItemPriceJewel("DFKGold", w3)
-    shvas_value = getItemPriceJewel("Shvas Rune", w3)
-    moksha_value = getItemPriceJewel("Moksha Rune", w3)
-    egg_value = getItemPriceJewel("Yellow Pet Egg", w3)
 
     print(f"jewel: {jewel_value} USD")
     print(f"tear: {tear_value} jewel")
@@ -134,8 +169,7 @@ def printStats():
     print("")
     print("Account Creation Price")
     print("Account cost")
-    account_cost_crystal= miner_avg_cost*miners_per_account
-    account_cost_jewel = account_cost_crystal*crystal_value + 5
+    account_cost_jewel = avg_expenditure*crystal_value*miners_per_account + 5
     account_cost_usd = account_cost_jewel*jewel_value
     print(f"{account_cost_jewel} Jewel")
     print(f"{account_cost_usd} USD")
@@ -146,7 +180,7 @@ def printStats():
 
     print("")
     print("Amount invested")
-    print(f"{account_cost_jewel*accounts + 5} Jewel")
+    print(f"{account_cost_jewel*accounts} Jewel")
     print(f"{account_cost_jewel*accounts*jewel_value} USD")
 
     #Stats
@@ -156,5 +190,12 @@ def printStats():
     yearly_earnings = account_daily_earnings*365
     print("Yearly Returns")
     print(f"{round(yearly_earnings/initial_inversion*100)}%")
+
+    print("")
+    current_avg_daily_earnings = account_daily_earnings*len(accounts_list)
+    print(f"Current Accounts: {len(accounts_list)}")
+    print(f"Current Avg Daily Earnings: {str(current_avg_daily_earnings)} Jewel")
+    print(f"Average expenditure per day: {str(avg_daily_expenditure*crystal_value)} jewel" )
+    print(f"Avg delta: {str(current_avg_daily_earnings - avg_daily_expenditure*crystal_value)} jewel" )
 
 printStats()

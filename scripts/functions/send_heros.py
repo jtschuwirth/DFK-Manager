@@ -4,7 +4,7 @@ import json
 itemsJson = open("items_data/items_dfkchain.json")
 items = json.load(itemsJson)
 
-graph_url = "https://defi-kingdoms-community-api-gateway-co06z8vi.uc.gateway.dev/graphql"
+graph_url = "https://api.defikingdoms.com/graphql"
 headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
