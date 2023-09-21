@@ -18,6 +18,53 @@ RouterAddress = "0x3C351E1afdd1b1BC44e931E12D4E05D6125eaeCa"
 RouterJson = open("abi/UniswapV2Router02.json")
 RouterABI = json.load(RouterJson)
 
+def getMaxExp(level):
+    if (level == 1):
+        return 2000
+    elif (level == 2):
+        return 3000
+    elif (level == 3):
+        return 4000
+    elif (level == 4):
+        return 5000
+    elif (level == 5):
+        return 6000
+    elif (level == 6):
+        return 8000
+    elif (level == 7):
+        return 10000
+    elif (level == 8):
+        return 12000
+    elif (level == 9):
+        return 16000
+    elif (level == 10):
+        return 20000
+    else:
+        return 0
+
+
+def sendItem(account, itemContract, amount, to, nonce, w3):
+    tx = itemContract.functions.transfer(
+        to,
+        amount,
+    ).build_transaction({
+        "from": account.address,
+        "nonce": nonce,
+    })
+    tx["gas"] = int(w3.eth.estimate_gas(tx))
+    tx["maxFeePerGas"] = w3.toWei(50, 'gwei')
+    tx["maxPriorityFeePerGas"] = w3.toWei(2, "gwei")
+    signed_tx = w3.eth.account.sign_transaction(tx, account.key)
+    hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    hash = w3.toHex(hash)
+    w3.eth.wait_for_transaction_receipt(hash)
+
+
+
+def getItemAmount(account, item, w3):
+    contract = w3.eth.contract(address= items[item], abi=ERC20ABI)
+    return int(contract.functions.balanceOf(account.address).call())
+
 def getJewelBalance(account, w3):
     return int(w3.eth.get_balance(account.address))
 

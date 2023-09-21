@@ -35,8 +35,8 @@ def getAccountHeros(account):
 
     return requests.post(graph_url, json={"query":query, "variables":variables}, headers=headers).json()["data"]["heroes"]
 
-def sendHero(account, sender, heroId, sender_nonce, w3):
-    tx = w3.eth.contract(address=items["Heroes"], abi=ERC721ABI).functions.transferFrom(sender.address, account.address, int(heroId)).build_transaction({
+def sendHero(account_address, sender, heroId, sender_nonce, w3):
+    tx = w3.eth.contract(address=items["Heroes"], abi=ERC721ABI).functions.transferFrom(sender.address, account_address, int(heroId)).build_transaction({
         "from": sender.address,
         "nonce": sender_nonce,
     })
@@ -46,6 +46,8 @@ def sendHero(account, sender, heroId, sender_nonce, w3):
     signed_tx = w3.eth.account.sign_transaction(tx, sender.key)
     hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
     hash = w3.toHex(hash)
+    w3.eth.wait_for_transaction_receipt(hash)
+
 
 def sendHeros(account, sender, amount, sender_nonce, w3):
     nonce = sender_nonce
@@ -55,7 +57,7 @@ def sendHeros(account, sender, amount, sender_nonce, w3):
         print("Not enough heros")
         return
     for hero in heros:
-        sendHero(account, sender, hero["id"], nonce, w3)
+        sendHero(account.address, sender, hero["id"], nonce, w3)
         print("Sent hero " + str(hero["id"]) + " to " + account.address)
         nonce+=1
         c-=1

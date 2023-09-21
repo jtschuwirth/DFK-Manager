@@ -1,12 +1,22 @@
 from web3 import Web3
 from functions.data import f, init_account_table
-from dotenv import load_dotenv
-load_dotenv()
 from web3.middleware import geth_poa_middleware
+import requests
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+s = requests.Session()
+s.auth = (os.environ.get('pokt_key'), "")
 
 def get_provider(network):
     if network == "dfk":
         rpc_url = "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc"
+        #rpc_url = "https://avax-dfk.gateway.pokt.network/v1/lb/6244818c00b9f0003ad1b619//ext/bc/q2aTwKuyzgs8pynF7UXBZCU7DejbZbZ6EUyHr3JQzYgwNPUPi/rpc"
+        #rpc_url = "https://dfkchain.api.onfinality.io/public"
+        #rpc_url = os.environ.get("rpc")
     elif network== "kla":
         rpc_url = "https://public-en-cypress.klaytn.net"
     w3 = Web3(Web3.HTTPProvider(rpc_url))

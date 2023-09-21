@@ -25,6 +25,16 @@ def getItemPriceJewel(item, w3):
         price = 0
     return price
 
+def getItemPriceJewelByAddress(item_address, w3):
+    RouterContract = w3.eth.contract(address=RouterAddress, abi=RouterABI)
+    try:
+        decimals = 0
+        price = RouterContract.functions.getAmountsOut(1, [item_address, items["Jewel"]]).call()[1]
+        price = price*(10**decimals)/(10**18)
+    except Exception as e:
+        price = 0
+    return price
+
 def getCrystalPriceJewel(w3):
     RouterContract = w3.eth.contract(address=RouterAddress, abi=RouterABI)
     try:

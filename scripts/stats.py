@@ -7,9 +7,12 @@ import time
 w3 = get_provider(network)
 
 #General
+gas_factor = 1
+
 miners_per_account = 18
 heros_per_quest = 6
-daily_avg_gas_cost = 0.6
+quest_per_day = 1.84615
+daily_avg_gas_cost = 0.4*gas_factor
 
 #Mining
 miner_avg_cost = 40 #Crystal
@@ -18,12 +21,10 @@ tear_drop_rate = 0.1125 #per try
 shvas_drop_rate = 0.015 #per try
 moksha_drop_rate = 0.00045 #per try
 egg_drop_rate = 0.0004 #per quest
-quest_per_day = 1.84615
 loot_slots = 5
-jewel_value = 0.140039
+jewel_value = 0.0963609
 
 def printStats():
-    print("Prices")	
     crystal_value = getCrystalPriceJewel(w3) 
     tear_value = getItemPriceJewel("Gaias Tears", w3)
     gold_value = getItemPriceJewel("DFKGold", w3)
@@ -53,6 +54,7 @@ def printStats():
     print(f"Average heros bought per day: {str(len(buys)/(timeframe/86400))}")
     avg_expenditure = total_expenditure/len(buys)
     print(f"Average hero cost: {str(avg_expenditure*crystal_value)} jewel")
+    print("")
 
     accounts_table = init_account_table()
     payouts_table = init_payouts_table()
