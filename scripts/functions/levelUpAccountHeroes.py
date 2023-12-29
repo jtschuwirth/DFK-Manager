@@ -14,6 +14,9 @@ ERC20ABI = json.load(ERC20Json)
 itemsJson = open("items_data/items_dfkchain.json")
 items = json.load(itemsJson)
 
+meditationSelectionJson = open("items_data/meditation_selection.json")
+meditationSelection = json.load(meditationSelectionJson)
+
 w3 = get_provider(network)
 
 def startMeditations(account, heroes):
@@ -46,7 +49,13 @@ def startMeditations(account, heroes):
         max_exp = getMaxExp(hero["level"])
         if max_exp == 0: continue
         if hero["xp"]==max_exp and hero["currentQuest"]=="0x0000000000000000000000000000000000000000":
-            meditations.append((int(hero["id"]), 0, 5, 6, "0x0000000000000000000000000000000000000000", False))
+            meditations.append(
+                (int(hero["id"]), 
+                meditationSelection[str(hero["mainClass"])]["main"], 
+                meditationSelection[str(hero["mainClass"])]["secondary"],
+                meditationSelection[str(hero["mainClass"])]["tertiary"],
+                "0x0000000000000000000000000000000000000000",
+                False))
             print(f"adding hero {hero['id']} to start meditation")
     try:            
         startAllMeditations(meditations, account, nonce, w3)

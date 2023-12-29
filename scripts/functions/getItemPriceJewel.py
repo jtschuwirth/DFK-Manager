@@ -1,9 +1,9 @@
 import json
 
-itemsJson = open("items_data/items_dfkchain.json")
+itemsJson = open("data/items.json")
 items = json.load(itemsJson)
 
-decimalsJson = open("items_data/decimals.json")
+decimalsJson = open("data/decimals.json")
 decimals_data = json.load(decimalsJson)
 
 RouterAddress = "0x3C351E1afdd1b1BC44e931E12D4E05D6125eaeCa"

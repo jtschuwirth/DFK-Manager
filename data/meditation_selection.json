@@ -1,0 +1,32 @@
+{
+    "0": {
+        "name": "Warrior",
+        "main": 0,
+        "secondary": 7,
+        "tertiary": 5
+    },
+    "1": {
+        "name": "Knight",
+        "main": 6,
+        "secondary": 0,
+        "tertiary": 5
+    },
+    "2": {
+        "name": "Thief",
+        "main": 4,
+        "secondary": 1,
+        "tertiary": 5
+    },
+    "3": {
+        "name": "Archer",
+        "main": 7,
+        "secondary": 4,
+        "tertiary": 5
+    },
+    "4": {
+        "name": "Priest",
+        "main": 3,
+        "secondary": 2,
+        "tertiary": 5
+    }
+}

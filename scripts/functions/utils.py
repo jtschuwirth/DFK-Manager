@@ -113,6 +113,21 @@ def fillGas(account, manager, amount, nonce, w3):
     hash = w3.toHex(hash)
     w3.eth.wait_for_transaction_receipt(hash)
 
+def sendJewel(account, payout_account, amount, w3, nonce):
+    tx = {
+        "from": account.address,
+        "to": payout_account,
+        "value": amount,
+        "nonce": nonce,
+        "chainId": chainId
+    }
+    gas = w3.eth.estimate_gas(tx)
+    tx["gas"] = gas
+    tx["gasPrice"] = w3.toWei(50, 'gwei')
+    signed_tx = w3.eth.account.sign_transaction(tx, account.key)
+    hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    hash = w3.toHex(hash)
+
 def sendCrystal(account, manager, amount, nonce, w3):
     itemContract = w3.eth.contract(address=items["Crystal"], abi=ERC20ABI)
     tx = itemContract.functions.transfer(

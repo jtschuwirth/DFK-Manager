@@ -22,7 +22,7 @@ shvas_drop_rate = 0.015 #per try
 moksha_drop_rate = 0.00045 #per try
 egg_drop_rate = 0.0004 #per quest
 loot_slots = 5
-jewel_value = 0.0963609
+jewel_value = 0.19
 
 def printStats():
     crystal_value = getCrystalPriceJewel(w3) 

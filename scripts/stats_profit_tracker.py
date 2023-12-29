@@ -1,14 +1,17 @@
-from functions.getItemPriceJewel import getItemPriceJewel, getCrystalPriceJewel
-from functions.data import init_profit_tracking_table, init_account_table, init_tracking_table, network
-from functions.provider import get_provider
-from datetime import datetime
+from functions.getItemPriceJewel import getCrystalPriceJewel
+from functions.classes.RPCProvider import get_rpc_provider
+from functions.classes.TablesManager import TablesManager
 import time
+import logging
 
-w3 = get_provider(network)
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+RPCProvider = get_rpc_provider("dfk", [], logger)
+tablesManager = TablesManager(False)
 
 def getTotalAccounts():
-    accounts_table = init_account_table()
-    accounts = accounts_table.scan(
+    accounts = tablesManager.accounts.scan(
         FilterExpression="pay_to = :pay_to",
             ExpressionAttributeValues={
                 ":pay_to": "0xa691623968855b91A066661b0552a7D3764c9a64"
@@ -18,16 +21,14 @@ def getTotalAccounts():
 
 
 def getAccountIncome():
-    tracking_table = init_profit_tracking_table()
-    track_results = tracking_table.scan()["Items"]
+    track_results = tablesManager.autoplayer_tracker.scan()["Items"]
     track_results.sort(key=lambda x: x["time_"], reverse=True)
-    real_avg_profit = track_results[0]['daily_real_avg_profit']
+    real_avg_profit = sum(float(track_results[i]['daily_real_avg_profit']) for i in range(7)) / 7
     return float(real_avg_profit)
 
 def getDailyHeroData():
-    crystal_value = getCrystalPriceJewel(w3) 
-    tracking_table = init_tracking_table()
-    buys = tracking_table.scan()["Items"]
+    crystal_value = getCrystalPriceJewel(RPCProvider.w3) 
+    buys = tablesManager.buyer_tracker.scan()["Items"]
     buys.sort(key=lambda x: int(x["time_"]), reverse=True)
     timeframe =  24*60*60*7
     buys = list(filter(lambda x: int(x["time_"]) > int(time.time())-timeframe, buys))
